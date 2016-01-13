@@ -55,15 +55,29 @@ def make_text(chains):
         word = choice(chains[key])
         words.append(word)
         key = (key[1], word)
-
-    return " ".join(words)
+        final_text = " ".join(words)
+        if len(final_text) > 120 and len(final_text) <= 140: # ask if there's another way
+            return final_text
+    
 
 
 def tweet(chains):
     # Use Python os.environ to get at environmental variables
     # Note: you must run `source secrets.sh` before running this file
     # to make sure these environmental variables are set.
-    pass
+    
+    api = twitter.Api(
+        consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+        consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+        access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+        access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'])
+
+    # This will print info about credentials to make sure they're correct
+    print api.VerifyCredentials()
+
+    # Send a tweet
+    status = api.PostUpdate(chains)
+    print status.text
 
 # Get the filenames from the user through a command line prompt, ex:
 # python markov.py green-eggs.txt shakespeare.txt
@@ -75,5 +89,10 @@ text = open_and_read_file(filenames)
 # Get a Markov chain
 chains = make_chains(text)
 
-# Your task is to write a new function tweet, that will take chains as input
-# tweet(chains)
+# Make text
+final_text = make_text(chains)
+
+# # Your task is to write a new function tweet, that will take chains as input
+tweet(final_text)
+
+# ask about mobile.twitter
