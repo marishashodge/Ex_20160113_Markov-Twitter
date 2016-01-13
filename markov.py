@@ -45,6 +45,8 @@ def make_text(chains):
 
     key = choice(chains.keys())
     words = [key[0], key[1]]
+    final_text = ""
+
     while key in chains:
         # Keep looping until we have a key that isn't in the chains
         # (which would mean it was the end of our original text)
@@ -52,12 +54,19 @@ def make_text(chains):
         # Note that for long texts (like a full book), this might mean
         # it would run for a very long time.
 
-        word = choice(chains[key])
-        words.append(word)
-        key = (key[1], word)
-        final_text = " ".join(words)
-        if len(final_text) > 120 and len(final_text) <= 140: # ask if there's another way
+        # method 1
+        if len(final_text) < 140:
+            word = choice(chains[key])
+            words.append(word)
+            key = (key[1], word)
+            final_text = " ".join(words)
+
+        else: 
             return final_text
+
+        # method 2
+        # if len(final_text) > 120 and len(final_text) <= 140:
+        #     return final_text
     
 
 
@@ -73,26 +82,30 @@ def tweet(chains):
         access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'])
 
     # This will print info about credentials to make sure they're correct
-    print api.VerifyCredentials()
+    # print api.VerifyCredentials()
 
     # Send a tweet
     status = api.PostUpdate(chains)
     print status.text
 
-# Get the filenames from the user through a command line prompt, ex:
-# python markov.py green-eggs.txt shakespeare.txt
-filenames = sys.argv[1:]
 
-# Open the files and turn them into one long string
-text = open_and_read_file(filenames)
+while True:
+    # Get the filenames from the user through a command line prompt, ex:
+    # python markov.py green-eggs.txt shakespeare.txt
+    filenames = sys.argv[1:]
 
-# Get a Markov chain
-chains = make_chains(text)
+    # Open the files and turn them into one long string
+    text = open_and_read_file(filenames)
 
-# Make text
-final_text = make_text(chains)
+    # Get a Markov chain
+    chains = make_chains(text)
 
-# # Your task is to write a new function tweet, that will take chains as input
-tweet(final_text)
+    # Make text
+    final_text = make_text(chains)
 
-# ask about mobile.twitter
+    # # Your task is to write a new function tweet, that will take chains as input
+    tweet(final_text)
+
+    tweet_again = raw_input("Enter anything to tweet again [q to quit] > ")
+    if tweet_again == "q":
+        break
